@@ -1,0 +1,119 @@
+\input{config/Config}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Parameter - Hier auf die eigene Arbeit anpassen
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\studiengang}{STUDIENGANG ANGEBEN} 
+\newcommand{\spezialisierungsbereich}{SPEZIALISIERUNG ANGEBEN}
+\newcommand{\martikelnummer}{MARTIKELNUMMER ANGEBEN}
+\newcommand{\dokumententyp}{Bachelorthesis}
+\newcommand{\abgabedatum}{\today} 
+\newcommand{\ort}{Paderborn} 
+\newcommand{\koorperationsunternehmen}{Unternehmen GmbH}
+\newcommand{\fhdwstandort}{Paderborn} % oder Bielefeld, Mettmann, ...
+\newcommand{\dokumententitel}{Konzeption und prototypische Realisierung einer \dokumententyp{} mit {\LaTeX}}
+\newcommand{\dokumentenautor}{Max Mustermann}
+\newcommand{\dokumentenautoradress}{Musterweg 123\\33102 Paderborn}
+\newcommand{\dokumentenpruefer}{Prof. Dr. Weis-Alles\\Prof. Dr. Besser}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\hypersetup{
+  colorlinks=false,
+  pdfborder={0 0 0},
+  pdftitle=\dokumententitel,
+  pdfauthor=\dokumentenautor
+} 
+
+\begin{document}
+
+% Römische Seitennummerierung
+\pagenumbering{Roman}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Titelseite
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{chapter/Titelseite}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Draft-Einstellungen
+%%
+%% Für die finale Version auskommentieren!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\fancyhead[L]{\color{red} Stand: \today~-~\currenttime}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Verzeichnisse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Sperrvermerk
+\include{chapter/Sperrvermerk}
+
+% Inhaltsverzeichnis
+\tableofcontents\newpage
+
+% Glossar
+\renewcommand{\glossarypreamble}{\label{glossary}}
+\printglossary[style=long, title=Glossar, toctitle=Glossar] \newpage
+
+% Abkürzungsverzeichnis
+\renewcommand{\glossarypreamble}{\label{acronyms}}
+\printglossary[type=acronym, style=long, title=Abkürzungsverzeichnis, toctitle=Abkürzungsverzeichnis] \newpage
+
+\setcounter{table}{0} % printglossary erzeugt eine Tabelle, die die Nummerierung der "echten" Tabellen durcheinander bringt.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Verzeichnisse
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Abbildungsverzeichnis
+\fancyhead[R]{\listfigurename}
+\listoffigures\newpage
+
+% Tabellenverzeichnis
+\fancyhead[R]{\listtablename}
+\listoftables\newpage
+
+% Quelltextverzeichnis
+\fancyhead[R]{\lstlistlistingname}
+\lstlistoflistings\newpage
+
+% Kapitelüberschriften für den Arbeitstext
+\fancyhead[R]{\leftmark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Inhalt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Arabische Seitennummerierung
+\pagenumbering{arabic} 
+
+\include{chapter/Einleitung}
+
+\include{chapter/Speicherverwaltung}
+
+\include{chapter/Parallelität}
+
+\include{chapter/Build_Tools}
+
+\include{chapter/Fehlerbehandlung}
+
+\include{chapter/Fazit}
+	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\include{chapter/Anhang}
+
+\include{chapter/Quellenverzeichnis}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\include{chapter/Ehrenwoertliche_Erklaerung}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
