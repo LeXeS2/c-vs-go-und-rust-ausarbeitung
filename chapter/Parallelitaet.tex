@@ -1,0 +1,118 @@
+\section{Parallelität}
+\label{sec:Parallelität}
+
+Mit der Zunahme an Kernen in modernen Prozessoren macht die parallele Gestaltung 
+von Quellencode immer relevanter. Jedoch birgt die parallele Programmierung
+auch einige Herausforderungen für den Programmierer mit sich. Programmiersprachen
+können bei diesen Herausforderungen unterstützen oder dem Programmierer die Arbeit
+erschweren. In diesem Abschnitt wird herausgearbeitet, wie Rust und Go den
+Programmierer besser bei seiner Arbeit unterstützen als C.
+
+\subsection{Parallelität in C}
+\label{subsec:Parallelität in C}
+
+Es wird begonnen die grundlegende Gestalung von Parallelität in C zu erläutern.
+Zu diesem Zweck wird ein minimales Beispielprogramm in C erstellt, welches im 
+Anhang \ref{anhang:vollstaendiger_quelltext} zu finden ist. 
+
+In \cref{fig:datentyp_in_c} wird gezeigt, wie in C Threads initialisiert werden
+und ihre Referenzen in einem Array gespeichert werden. In C gibt es nicht die 
+Möglichkeit einen Thread ohne eine Referenz zu verwenden. Des Weiteren ist zu 
+bemerken, dass in C Daten nur typenlos übergeben werden können und auch Resultate
+können nur typenlos erhalten werden. Dies bedeutet, dass der Programmierer
+selbst dafür sorgen muss, dass die Daten in der richtigen Form vorliegen. 
+\autocite{hawthorneLanguageComparisonParallel}
+
+\begin{figure}[htp]
+    \centering
+    \lstinputlisting[
+        language=C,
+        linerange={18-28}
+    ]{img/parallelitaet_in_c.c}
+    \caption{Beispiel für die Verwendung Kollektionen zur Speicherung von Threads in C}
+    \label{fig:datentyp_in_c}
+\end{figure}
+
+In \cref{fig:mutex_in_c} zeigt, dass um Synchronisation zu ermöglichen, muss
+ein Mutex verwendet werden, um einen Codeabschnitt zu schützen. Prinzipell sind 
+auch andere Synchronisationsmechanismen möglich, jedoch müssen diese vom 
+Programmierer manuell angewendet werden. 
+
+\begin{figure}[htp]
+    \centering
+    \lstinputlisting[
+        language=C,
+        linerange={10-14}
+    ]{img/parallelitaet_in_c.c}
+    \caption{Beispiel für die Verwendung von Mutex in C}
+    \label{fig:mutex_in_c}
+\end{figure}
+
+
+\subsection{Erweiterung in Go}
+\label{subsec:Erweiterung in Go}
+Im Kontrast zu C bietet Go mehr Unterstützung für das Programmieren mit Threads.
+So zeigt \cref{fig:goroutinen}, dass in Go das Schlagewort \texttt{go} verwendet 
+wird, um eine Goroutine zu starten, welche Equivalent zu einem Thread ist.
+
+\begin{figure}[htp]
+    \centering
+    \lstinputlisting[
+        language=C,
+        linerange={16-23}
+    ]{img/parallelitaet_in_go.go}
+    \caption{Beispiel für die Verwendung von Goroutinen in Go}
+    \label{fig:goroutinen}
+\end{figure}
+
+Zur Synchronisation und Kommunikation zwischen Goroutinen bietet Go
+Kanäle an. In \cref{fig:go_kanäle} kann gesehen werden, wie Daten über einen 
+Kanal gesendet werden können. Dadurch das Kanäle in Go einen Datentyp erhalten,
+hat der Programmierer mehr Sicherheit und eine leichere Handhabung. Des Weiteren
+kann man mit Kanälen flexibeler die Kommunikation zwischen Goroutinen gestalten.
+Dadruch dass Kanäle eine Buffergröße haben können, kann sowohl ein Mutex 
+nachgestellt werden, wenn eine Buffergröße von 1 verwendet wird, als auch eine 
+beabsichtigte Toleranz eingebaut werden, wie weit eine oder mehrere Goroutinen 
+vorarbeiten dürfen, bevor sie auf das Lesen auf der anderen Seite des Kanals 
+warten. \autocite{hawthorneLanguageComparisonParallel}
+
+\begin{figure}[htp]
+    \centering
+    \lstinputlisting[
+        language=C,
+        linerange={25-28, 8-14}
+    ]{img/parallelitaet_in_go.go}
+    \caption{Beispiel für die Verwendung von Kanälen in Go}
+    \label{fig:go_kanäle}
+\end{figure}
+
+\subsection{Erweiterung in Rust}
+\label{subsec:Erweiterung in Rust}
+
+Rust ändert die Grundsätzliche Verwendung von Threads nicht, deswegen ist eine 
+ähnlichkeit der Struktur in \cref{fig:datentyp_in_c} und \cref{fig:rust_threads}
+zu erkennen. Jedoch bietet Rust eine bessere Typensicherheit, da die Referenzen
+von Daten, welche den Threads übergeben werden, nicht nur typisiert sind, sondern
+auch der Arc-Typ verwendet. Dieser Arc-Typ ist ein Thread-sicherer 
+Referenzzähler, welcher es ermöglicht, dass mehrere Threads auf die gleichen Daten
+zugreifen können, ohne dass der Programmierer sich um die Synchronisation kümmern
+muss. Dies wird bewekstäligt, inder der Arc-Typ erwartet, dass im ein Datentyp 
+übergeben wird, welcher den \texttt{Send}-Trait und \texttt{Sync} implementiert. 
+Diese Traits garantieren, dass der Datentyp sicher zwischen Threads 
+übertragen werden kann und dass er von mehreren Threads gleichzeitig gelesen aber
+nicht beschrieben werden kann.
+\autocite{pfosiComparisonConcurrencyRust,IntroductionRustExample}
+
+\begin{figure}[htp]
+    \centering
+    \lstinputlisting[
+        language=Rust,
+        linerange={9-26}
+    ]{img/parallelitaet_in_rust.rs}
+    \caption{Beispiel für die Verwendung von Threads in Rust}
+    \label{fig:rust_threads}
+\end{figure}
+
+Des Weiteren bietet Rust die Möglichkeit, Daten über Kanäle zu senden, ähnlich
+wie in Go mit der besonderheit, dass Rust Kanäle unidirektional sind im Gegensatz
+zu Gos bidirektionale Kanäle. \autocite{ChannelsRustExample}
