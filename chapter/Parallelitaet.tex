@@ -27,9 +27,9 @@ selbst dafür sorgen muss, dass die Daten in der richtigen Form vorliegen.
     \centering
     \lstinputlisting[
         language=C,
-        linerange={18-28}
+        linerange={18-28},
+        caption=Beispiel für die Verwendung Kollektionen zur Speicherung von Threads in C
     ]{img/parallelitaet_in_c.c}
-    \caption{Beispiel für die Verwendung Kollektionen zur Speicherung von Threads in C}
     \label{fig:datentyp_in_c}
 \end{figure}
 
@@ -42,9 +42,9 @@ Programmierer manuell angewendet werden.
     \centering
     \lstinputlisting[
         language=C,
-        linerange={10-14}
+        linerange={10-14},
+        caption=Beispiel für die Verwendung von Mutex in C
     ]{img/parallelitaet_in_c.c}
-    \caption{Beispiel für die Verwendung von Mutex in C}
     \label{fig:mutex_in_c}
 \end{figure}
 
@@ -59,9 +59,9 @@ wird, um eine Goroutine zu starten, welche Equivalent zu einem Thread ist.
     \centering
     \lstinputlisting[
         language=C,
-        linerange={16-23}
+        linerange={16-23},
+        caption=Beispiel für die Verwendung von Goroutinen in Go
     ]{img/parallelitaet_in_go.go}
-    \caption{Beispiel für die Verwendung von Goroutinen in Go}
     \label{fig:goroutinen}
 \end{figure}
 
@@ -80,9 +80,9 @@ warten. \autocite{hawthorneLanguageComparisonParallel}
     \centering
     \lstinputlisting[
         language=C,
-        linerange={25-28, 8-14}
+        linerange={25-28, 8-14},
+        caption=Beispiel für die Verwendung von Kanälen in Go
     ]{img/parallelitaet_in_go.go}
-    \caption{Beispiel für die Verwendung von Kanälen in Go}
     \label{fig:go_kanäle}
 \end{figure}
 
@@ -107,12 +107,14 @@ nicht beschrieben werden kann.
     \centering
     \lstinputlisting[
         language=Rust,
-        linerange={9-26}
+        linerange={9-26},
+        caption=Beispiel für die Verwendung von Threads in Rust
     ]{img/parallelitaet_in_rust.rs}
-    \caption{Beispiel für die Verwendung von Threads in Rust}
     \label{fig:rust_threads}
 \end{figure}
 
 Des Weiteren bietet Rust die Möglichkeit, Daten über Kanäle zu senden, ähnlich
 wie in Go mit der besonderheit, dass Rust Kanäle unidirektional sind im Gegensatz
 zu Gos bidirektionale Kanäle. \autocite{ChannelsRustExample}
+
+Ändere den Text
