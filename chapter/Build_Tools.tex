@@ -1,0 +1,182 @@
+\section{Build Tooling}
+\label{sec:Build_Tooling}
+
+Buildsysteme und Tooling spielen eine zentrale Rolle in der Softwareentwicklung. Sie regeln, 
+wie ein Projekt übersetzt wird, welche Abhängigkeiten es hat und wie es ausgeführt werden kann. 
+
+C und C++ schneiden in diesem Bereich oft schlechter ab. Es gibt keine einheitliche Lösung, 
+sondern eine Vielzahl unterschiedlicher Tools und Ansätze. Rust und Go versuchen, 
+diese Schwächen zu vermeiden, indem sie ein klar strukturiertes und integriertes Tooling mitbringen.
+
+\subsection{Tooling und Buildsysteme}
+\label{subsec:Tooling_und_Buildsysteme}
+
+In C und C++ existieren viele Buildsysteme, zum Beispiel Make, CMake, Autotools oder Meson. 
+Welches davon ein Projekt verwendet, ist verschieden. Teilweise müssen auch eigene 
+Skripte geschrieben werden, um alles zum Laufen zu bringen. Gerade bei plattformübergreifender 
+Entwicklung oder beim Einstieg in bestehende Projekte führt das oft zu Problemen \autocite{SurprisinglyComplexWorld}.
+
+Rust bringt mit cargo ein zentrales Werkzeug mit, das alles rund um den Buildprozess abdeckt. 
+Es erkennt die Projektstruktur automatisch, führt Builds durch, verwaltet Abhängigkeiten, 
+testet Code und erstellt Dokumentation, alles mit wenigen Befehlen \autocite{HelloCargoRust}. 
+Eine zusätzliche Build-Konfiguration ist in vielen Fällen nicht nötig. 
+Die Projektinformationen stehen in einer Datei namens Cargo.toml, die von cargo gelesen wird.
+
+Auch bei Go ist kein externes Buildsystem nötig. Die Toolchain ist vollständig in die Sprache 
+eingebaut. Mit Befehlen wie \texttt{go build} oder \texttt{go run} lassen sich Programme direkt 
+übersetzen und starten, ohne dass vorher etwas konfiguriert werden muss. 
+Solange eine Datei go.mod vorhanden ist, erkennt das System automatisch die Struktur 
+und kann alle nötigen Schritte ausführen \autocite{UsingGoModules}.
+
+Während C und C++ viel Freiheit lassen, setzen Rust und Go bewusst auf klare Standards. 
+Beide Sprachen wollen damit typische Fehlerquellen vermeiden und die Einstiegshürde senken.
+
+\subsection{Zentrale Paketregistrierung}
+\label{subsec:Zentrale_Paketregistrierung}
+
+Ein zentrales Problem bei C und C++ ist das Fehlen einer offiziellen Paketregistrierung. 
+Zwar gibt es Werkzeuge wie vcpkg oder Conan, die eigene Repositories mitbringen, 
+aber keine davon ist standardisiert oder universell verbreitet \autocite{NotesPackageManagement}. 
+In vielen Projekten werden Abhängigkeiten manuell eingebunden, etwa durch Einbinden von Quellcode 
+oder statische Bibliotheken. Das macht die Verwaltung aufwendig, besonders bei größeren Projekten 
+oder wenn mehrere Teams beteiligt sind \autocite{tangUnderstandingThirdpartyLibrary2022}.
+
+Rust geht hier einen anderen Weg. Mit crates.io gibt es eine zentrale, offizielle Plattform 
+für Community- und Systempakete. Sie ist direkt in cargo integriert und wird standardmäßig verwendet, 
+wenn Abhängigkeiten in der Cargo.toml eingetragen werden \autocite{HelloCargoRust}. Das macht es einfach, 
+Pakete zu finden, zu installieren und aktuell zu halten, ohne zusätzliche Werkzeuge oder manuelle Downloads.
+
+Auch Go nutzt eine zentrale Quelle, allerdings über einen Proxy. 
+Standardmäßig verwendet die Toolchain proxy.golang.org, der als Cache zwischen Entwickler*innen 
+und dem tatsächlichen Git-Repository dient \autocite{GoModulesReference}. 
+Dieser Proxy verbessert die Stabilität und Verfügbarkeit, verhindert Breaking Changes 
+und ermöglicht reproduzierbare Builds auch dann, wenn ein Repository offline geht.
+
+Beide Sprachen zeigen, wie wichtig eine zentrale Anlaufstelle für Abhängigkeiten ist. 
+Nicht nur zur Vereinfachung der Nutzung, sondern auch für Sicherheit, Transparenz und Wartbarkeit. 
+C und C++ bieten solche Strukturen nur über Drittanbieter, was Fehler wahrscheinlicher macht.
+
+\subsection{Paketmanager}
+\label{subsec:Paketmanager}
+
+In C und C++ gibt es keine standardisierte Lösung für die Verwaltung von Abhängigkeiten. 
+Stattdessen haben sich mehrere verschiedene Paketmanager entwickelt, darunter z.B. vcpkg und Conan. 
+Beide funktionieren unterschiedlich und bringen jeweils eigene Formate, 
+Repositories und Tools mit \autocite{NotesPackageManagement}. Da kein System dominiert, 
+muss bei jedem Projekt neu entschieden werden, welches Tool eingesetzt wird. 
+Diese Situation erschwert die Zusammenarbeit zwischen Projekten und macht Wiederverwendbarkeit 
+unnötig kompliziert \autocite{tangUnderstandingThirdpartyLibrary2022}.
+
+Rust bringt seinen Paketmanager direkt mit: cargo. Das Tool ist eng mit der Paketregistrierung crates.io 
+verbunden und installiert automatisch alle im Projekt angegebenen Abhängigkeiten. 
+Dabei legt cargo ein Verzeichnis (target/) an, in dem alle kompilierten Artefakte landen, sowie ein Cargo.lock, 
+das die exakten Paketversionen festhält. Auch Updates, lokale Pfade und optionale Features lassen sich direkt in 
+der Cargo.toml konfigurieren \autocite{HelloCargoRust}.
+
+Go verwendet mit „Go Modules" ein ähnliches System. 
+Abhängigkeiten werden über go.mod definiert, automatisch heruntergeladen und im Modul-Cache gespeichert. 
+Zusätzlich legt Go eine Datei go.sum an, die Prüfsummen der Abhängigkeiten enthält und so absichert, 
+dass dieselben Versionen wiederverwendet werden \autocite{ManagingDependenciesGo}.
+
+Sowohl Rust als auch Go setzen also auf eine enge Integration von Paketmanager, Registry und Buildsystem. 
+Im Vergleich zu C/C++ sind damit weniger manuelle Schritte nötig, und es entsteht eine konsistentere Projektumgebung.
+
+\subsection{Projektstruktur}
+\label{subsec:Projektstruktur}
+
+In C und C++ gibt es keine festgelegte Projektstruktur. Der Aufbau eines Projekts hängt stark vom 
+verwendeten Buildsystem ab. Manche Projekte nutzen ein src/-Verzeichnis, andere verteilen Header 
+und Implementierungsdateien frei über mehrere Ordner. Auch die Position von Konfigurationsdateien (z. B. CMakeLists.txt) 
+variiert stark. Diese Flexibilität erlaubt zwar viele Freiheiten, führt aber oft zu Problemen, wenn man z.B. 
+in ein fremdes Projekt einsteigt \autocite{SurprisinglyComplexWorld}.
+
+Rust setzt auf eine klar vorgegebene Struktur. Ein Standardprojekt besteht aus einem src/-Ordner, 
+einer Datei Cargo.toml und optional weiteren Unterverzeichnissen für Tests, Dokumentation oder Benchmarks. 
+cargo erkennt diese Struktur automatisch, sodass Entwickler*innen sich nicht um die Einbindung einzelner Dateien kümmern müssen. 
+Auch bei größeren Projekten mit mehreren Crates lässt sich die Struktur mithilfe von Workspaces gut organisieren \autocite{HelloCargoRust}.
+
+Go verlangt keine bestimmte Struktur, solange es eine Datei go.mod gibt. 
+Meistens liegt der Code direkt im Projektverzeichnis oder in einem cmd/- oder internal/-Ordner, 
+aber die Sprache schreibt nichts explizit vor. Der \texttt{go build}-Befehl erkennt automatisch alle zugehörigen Dateien 
+und baut das Projekt ohne weitere Konfiguration \autocite{UsingGoModules}.
+
+Während C/C++ viel Entscheidungsfreiheit lassen, setzen Rust und Go bewusst auf einfache oder standardisierte Strukturen. 
+Das erleichtert den Einstieg, macht Projekte besser wartbar und reduziert den Bedarf an zusätzlicher Dokumentation.
+
+\subsection{Reproduzierbarkeit von Builds}
+\label{subsec:Reproduzierbarkeit_von_Builds}
+
+Ein häufiger Kritikpunkt an C und C++ ist die geringe Reproduzierbarkeit von Builds. 
+Schon kleine Unterschiede in Compiler-Versionen, Abhängigkeiten oder Systempfaden können dazu führen, 
+dass ein Projekt auf einem anderen Rechner nicht mehr zuverlässig kompiliert oder sich anders verhält. 
+Zwar kann man mit viel Aufwand stabile Umgebungen aufbauen, etwa über Docker oder manuelle Dependency-Pinning-Strategien, 
+aber ein einheitlicher Mechanismus fehlt \autocite{SurprisinglyComplexWorld}.
+
+Rust nutzt Cargo.lock, um Reproduzierbarkeit sicherzustellen. Diese Datei wird beim ersten Build automatisch erzeugt 
+und enthält die genauen Versionen aller verwendeten Pakete inklusive ihrer transitive Abhängigkeiten. 
+Beim erneuten Build wird genau diese Version verwendet, solange sich Cargo.toml nicht ändert. 
+Dadurch bleibt das Verhalten konsistent, selbst über verschiedene Systeme hinweg \autocite{HelloCargoRust}.
+
+Go löst das Problem mit der Datei go.sum. Diese enthält Prüfsummen aller geladenen Abhängigkeiten und 
+schützt so vor nachträglichen Änderungen im Repository. Zusammen mit go.mod stellt sie sicher, 
+dass alle Entwickler*innen mit den gleichen Paketversionen arbeiten und Builds identisch verlaufen \autocite{ManagingDependenciesGo,UnderstandingGoModulesBeginners}.
+
+Beide Sprachen setzen damit auf integrierte Lösungen, um stabile und reproduzierbare Buildprozesse zu ermöglichen. 
+Bei C und C++ muss diese Sicherheit hingegen extern hergestellt werden, was Zeit kostet und zusätzliche Fehlerquellen schafft.
+
+\subsection{Plattformunabhängigkeit}
+\label{subsec:Plattformunabhaengigkeit}
+
+Plattformübergreifende Entwicklung ist in C/C++ grundsätzlich möglich, aber oft aufwendig. 
+Viele Buildsysteme erzeugen unterschiedliche Artefakte je nach Betriebssystem, Compiler oder Umgebung. 
+Auch das Einbinden von externen Bibliotheken unterscheidet sich stark zwischen Windows, Linux und macOS, 
+etwa durch unterschiedliche Pfade, Bibliotheksformate oder Paketquellen. 
+Paketmanager wie vcpkg oder Conan können zwar helfen, aber sie müssen korrekt eingerichtet werden 
+und sind nicht in jeder Umgebung gleich zuverlässig \autocite{NotesPackageManagement,tangUnderstandingThirdpartyLibrary2022}.
+
+Rust versucht, diese Probleme mit einer plattformübergreifenden Toolchain zu vermeiden. 
+Die offizielle Rust-Distribution enthält bereits alles, was für den Build benötigt wird, 
+und ist für alle gängigen Betriebssysteme verfügbar. cargo funktioniert auf allen Plattformen gleich, 
+und auch die verfügbaren Pakete auf crates.io sind größtenteils systemunabhängig, 
+solange sie keine nativen Bibliotheken einbinden \autocite{HelloCargoRust}.
+
+Go geht ähnlich vor. Die Sprache und die gesamte Toolchain werden direkt von Google für verschiedene Plattformen bereitgestellt. 
+Die Module werden plattformneutral verwaltet, und die Tool-Befehle (\texttt{go build}, \texttt{go get} usw.) 
+funktionieren auf jedem unterstützten System gleich. Auch die Verwendung von Cross-Compilation ist in Go sehr einfach 
+und standardmäßig verfügbar, was in C/C++ häufig nur mit erheblichen Anpassungen funktioniert \autocite{GoModulesReference,UsingGoModules}.
+
+Im Vergleich zeigen Rust und Go, wie moderne Toolchains die Plattformunabhängigkeit deutlich verbessern können. 
+Nicht durch externe Tools, sondern durch einen integrierten und standardisierten Ansatz. 
+In C/C++ hingegen bleibt das Ziel zwar erreichbar, aber der Weg dorthin ist oft mühsam und fehleranfällig.
+
+\subsection{Einstiegshürde und Entwicklerfreundlichkeit}
+\label{subsec:Einstiegshuerde_und_Entwicklerfreundlichkeit}
+
+Der Einstieg in C oder C++ ist aus Tooling-Perspektive oft schwierig. Neue Projekte erfordern zunächst die Wahl eines passenden Buildsystems, 
+das Einrichten von Konfigurationsdateien und die Einbindung von Abhängigkeiten. Gerade für Einsteiger*innen ist es schwer abzuschätzen, 
+welche Werkzeuge zusammenpassen, wie plattformübergreifende Builds funktionieren sollen und wie sich externe Bibliotheken 
+integrieren lassen \autocite{SurprisinglyComplexWorld,NotesPackageManagement}. Selbst erfahrene Entwickler*innen brauchen oft viel Zeit, 
+um bestehende Projekte zu verstehen und lokal lauffähig zu machen \autocite{tangUnderstandingThirdpartyLibrary2022}.
+
+Rust nimmt Einsteigenden diese Entscheidungen weitgehend ab. Mit \texttt{cargo new} lässt sich ein vollständiges Projekt erzeugen, 
+inklusive Ordnerstruktur, Manifest-Datei (Cargo.toml) und einer ersten main.rs. Abhängigkeiten werden automatisch heruntergeladen und eingebunden.
+Auch für fortgeschrittene Anwendungsfälle wie Workspaces oder native Libraries gibt es klare Anleitungen \autocite{HelloCargoRust}.
+
+Go geht sogar noch weiter und verzichtet fast vollständig auf Konventionen, die über das Notwendige hinausgehen. 
+Ein neues Go-Projekt benötigt nur eine Datei go.mod, und mit \texttt{go build} oder \texttt{go run} kann der Code sofort getestet werden. 
+Die Toolchain installiert automatisch alle benötigten Abhängigkeiten. Selbst komplexere Dinge wie Modulverwaltung 
+oder Cross-Compilation sind in der Standardtoolchain enthalten und dokumentiert \autocite{UsingGoModules,UnderstandingGoModulesBeginners}.
+
+Beide Sprachen setzen also auf ein Tooling, das Entwickler*innen möglichst wenig Konfiguration abverlangt und schnell zu Ergebnissen führt. 
+Das senkt die Einstiegshürde deutlich, besonders im Vergleich zu den teils komplexen Setups von C und C++.
+
+\subsection{Zusammenfassung}
+\label{subsec:Build_Tooling_Zusammenfassung}
+
+C und C++ bieten beim Build Tooling wenig Einheitlichkeit. Es gibt viele verschiedene Tools, keine klare Standardlösung 
+und vieles muss manuell konfiguriert werden. Das macht den Einstieg schwer und sorgt oft für Probleme bei der Zusammenarbeit.
+
+Rust und Go lösen das anders. Beide Sprachen bringen von Anfang an ein zentrales Tool mit, das Builds, 
+Abhängigkeiten und Projektstruktur übernimmt. Rust ist dabei etwas strukturierter und mächtiger, 
+während Go möglichst einfach bleiben will. In beiden Fällen sorgt das dafür, dass Projekte schneller starten können, 
+weniger Fehler entstehen und Builds besser nachvollziehbar bleiben.
