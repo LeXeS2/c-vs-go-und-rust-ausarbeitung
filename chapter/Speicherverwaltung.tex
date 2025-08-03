@@ -1,3 +1,276 @@
 \section{Speicherverwaltung}
-\label{sec:Speicherverwaltung
-}
+\label{sec:Speicherverwaltung}
+In modernen Computersystemen ist Speicher ein vom Prozessor direkt zugreifbarer Hochgeschwindigkeitsspeicher, 
+meist in Form von DRAM, der Programme und deren Daten speichert\autocite{OperatingSystemConcepts}. 
+Da physischer Speicher schnell, aber begrenzt und flüchtig ist, wurde mit wachsender Programmgrösse 
+und Mehrtasking-Betriebssystemen virtueller Speicher eingeführt.
+
+Virtueller Speicher trennt den vom Programm wahrgenommenen logischen Adressraum vom physischen Speicher 
+und vermittelt jedem Prozess den Eindruck eines grossen, zusammenhängenden Adressraums\autocite{OperatingSystemConcepts}. 
+Durch Techniken wie Paging, Segmentierung und Demand Paging können Speicherbedarf und Sicherheit verbessert 
+sowie Prozesse isoliert werden\autocite{IntroductionandOverviewoftheMulticsSystem}.
+
+Die Speicherverwaltung koordiniert physische und virtuelle Speicherressourcen, weist Speicher zu, schützt Prozesse, 
+wandelt Adressen um und lagert selten genutzte Daten aus, um eine effiziente und sichere Programmausführung in 
+Mehrprozessumgebungen zu gewährleisten\autocite{Operating}.
+\subsection{Speicherverwaltung basierend auf Programmiersprachen}
+\label{sec:Speicherverwaltung basierend auf Programmiersprachen}
+Speicherverwaltung ist nicht nur ein interner Mechanismus des Betriebssystems, sondern auch mit 
+Programmiersprachen verknüpft. Aus der Perspektive der Implementierung von Programmiersprachen lassen sich 
+zwei grundlegende Ansätze unterscheiden: manuelle Speicherverwaltung und automatische Speicherverwaltung.
+
+\subsubsection{Manuelle Speicherverwaltung}
+\label{sec:Manuelle Speicherverwaltung}
+
+Manual Memory Management bezeichnet ein Verwaltungsmodell, bei dem die Zuweisung und Freigabe von Speicher 
+während der Programmausführung explizit durch den Programmierer gesteuert werden und nicht automatisch durch 
+die Laufzeitumgebung oder das Betriebssystem erfolgen\autocite{TheCProgrammingLaunguage}. In diesem Modell bestimmt der 
+Entwickler mithilfe spezieller Funktionen zur Speicherzuweisung und -freigabe direkt den Lebenszyklus von 
+Speicherblöcke im Heap. Das bedeutet, dass die Beschaffung, Nutzung und Freigabe von Speicher vollständig 
+von der Logik und den Entscheidungen des Programmierers abhängen; Compiler und Laufzeitumgebung führen 
+keine automatische Bereinigung nicht mehr genutzter Objekte durch.
+
+In C verwendet man wie malloc(), calloc(), realloc() und free(), und 
+in C++ wie new und delete verwendet werden, um den Speicherlebenszyklus 
+im Heap direkt zu steuern. Dieses Verfahren bietet ein hohes Mass an 
+Flexibilität und Vorhersehbarkeit: Entwickler können exakt festlegen, 
+wann Speicher zugewiesen und freigegeben wird, und durch benutzerdefinierte 
+Allokatoren oder Speicherpools die Leistung weiter optimieren\autocite{SmashingtheStackforFunandProfit}.
+
+Allerdings bringt manuelle Verwaltung erhebliche Komplexität und Risiken mit 
+sich. Da eine automatisierte Speicherbereinigung fehlt, führt das Versäumnis, 
+nicht mehr benötigten Speicher rechtzeitig freizugeben, zu Speicherlecks, die 
+bei langfristiger Ausführung die Systemressourcen erschöpfen können. Das Zugreifen 
+auf bereits freigegebenen Speicher verursacht hängende Zeiger, was zu 
+Programmabstürzen oder gar Sicherheitslücken führen kann\autocite{Seacord}. 
+Darüber hinaus kann ein fehlerhaftes doppeltes Freigeben von Speicher die 
+Heap beschädigen, während Pufferüberläufe zusätzliche Sicherheitsrisiken darstellen.
+
+Trotz dieser Gefahren bleibt die manuelle Speicherverwaltung in Szenarien, 
+die höchste Anforderungen an Leistung und Ressourcenkontrolle stellen, unverzichtbar 
+wie in Betriebssystemkernen, eingebetteten Systemen oder im Hochleistungsrechnen.
+\subsubsection{Automatische Speicherverwaltung}
+\label{sec:Automatische Speicherverwaltung}
+
+Automatische Speicherverwaltung bedeutet, dass nicht mehr genutzte Speicherobjekte 
+durch einen Garbage Collection Mechanismus automatisch freigegeben werden, sodass 
+der Programmierer den Speicher nicht manuell freigeben muss.
+
+Speicherverwaltungsstrategien spiegeln tiefgreifend die Unterschiede im Designhintergrund, der 
+Entwicklungszeit und den Zielanwendungsszenarien wider.
+
+\subsection{Typische Speicherverwaltungsfehler in C}
+\label{sec:Typische Speicherverwaltungsfehler in C}
+
+Die Programmiersprache C wurde 1972 von Dennis Ritchie in den Bell 
+Laboratories entwickelt, um portablen und effizienten Systemcode für 
+das Unix Betriebssystem zu schreiben. Daher bietet C als frühe systemnahe 
+Programmiersprache direkte Zugriff auf den Speicher und ein hohes Mass an Flexibilität. 
+Gleichzeitig bringt der vollständig manuelle Speicherverwaltungsmechanismus von C 
+jedoch zahlreiche potenzielle Risiken mit sich\autocite{TheCProgrammingLaunguage}.
+
+Im vollständig manuellen Speicherverwaltungsmodell liegen Anforderung, Nutzung und 
+Freigabe von Speicher vollständig in der Verantwortung des Entwicklers, während die 
+Sprache selbst nahezu keine Laufzeitprüfungen oder automatischen Schutzmechanismen 
+bereitstellt. Dies führt dazu, dass C Programme besonders anfällig für 
+Speicherverwaltungsfehler sind,insbesondere in komplexen Projekten oder mit 
+mehreren Entwicklern arbeiten zusammen.
+
+Im Folgenden werden einige typische Fehlerarten aufgeführt, die bis heute eine 
+wesentliche Ursache für Probleme in Systemsoftware und Sicherheitslücken darstellen.
+
+\subsubsection{Dangling Pointers}
+\label{sec:Dangling Pointers}
+Ein hängender Zeiger ist ein Zeiger, der auf bereits freigegebenen Speicher verweist. 
+Da C keine Überprüfung der Gültigkeit von Zeigern durchführt, führt der weitere Zugriff 
+auf diesen Speicherblock nach der Freigabe zu undefiniertem Verhalten, was sich in 
+Datenkorruption oder Programmabstürzen äussern kann betonen bei der Implementierung eines Speichermanagers, dass die Weiterverwendung eines 
+freigegebenen Zeigers zu den gefährlichsten Fehlern in der C gehört\autocite{TheCProgrammingLaunguage}.
+\begin{figure}[htp]
+    \centering
+    \lstinputlisting[
+        language=C,
+        caption=Beispiel dangling pointer in C
+    ]{img/dangling_pointer.c}
+    \label{fig:dangling_pointer_in_c}
+\end{figure}
+
+\subsubsection{Double Free}
+\label{sec:Double Free}
+Wenn derselbe Zeiger mehrfach mit free() aufgerufen wird, kann dies die Heap
+beschädigen und zu Laufzeitfehlern oder Sicherheitslücken führen. Solche Defekte 
+sind insbesondere in Multithread-Umgebungen besonders gefährlich, da Angreifer 
+durch sorgfältig gestaltete Eingaben double free ausnutzen können, 
+um Heap Spraying durchzuführen oder beliebigen Code auszuführen.
+\begin{figure}[htp]
+    \centering
+    \lstinputlisting[
+        language=C,
+        caption=Beispiel double free in C
+    ]{img/tow_of_free.c}
+    \label{fig:double_free_in_c}
+\end{figure}
+
+\subsubsection{Wild Pointers}
+\label{sec:Wild Pointers}
+Wenn ein Zeiger nach seiner Deklaration ohne Initialisierung verwendet wird, verweist 
+er auf eine zufällige Adresse, was zu schwer vorhersehbarem Verhalten führen kann. 
+Solche Fehler stellen ein ernstzunehmendes Sicherheitsrisiko dar.
+\begin{figure}[htp]
+    \centering
+    \lstinputlisting[
+        language=C,
+        caption=Beispiel wild pointer in C
+    ]{img/wild_pointer.c}
+    \label{fig:wild_pointer_in_c}
+\end{figure}
+
+\subsubsection{Buffer Overflow}
+\label{sec:Buffer Overflow}
+Pufferüberläufe gehören zu den berüchtigtsten Sicherheitslücken in der Geschichte 
+der Programmiersprache C. Da Standardbibliotheksfunktionen wie strcpy oder scanf 
+die Grösse des Zielpuffers nicht überprüfen, kommt es leicht zu out of bounds Zugriffen. 
+Angreifer können diese Schwachstelle ausnutzen, um den Stack zu manipulieren und den 
+Programmsteuerfluss zu übernehmen\autocite{SmashingtheStackforFunandProfit}. \autocite{TheCProgrammingLaunguage}weisen 
+bei der Beschreibung von String zwar prägnante Beispiele auf, verzichten jedoch auf 
+Sicherheitsprüfungen der Grenzen – ein Umstand, der die unzureichende Berücksichtigung 
+von Sicherheitsaspekten im frühen Design der C Library deutlich macht.
+\begin{figure}[htp]
+    \centering
+    \lstinputlisting[
+        language=C,
+        caption=Beispiel wild pointer in C
+    ]{img/wild_pointer.c}
+    \label{fig:wild_pointer_in_c}
+\end{figure}
+
+\subsection{Rust}
+\label{sec:Rust}
+Gibt es eine Sprache, die so schnell ist wie C/C++, aber sicherer ist und 
+viele typische Speicherfehler vermeidet?
+
+Vor diesem Hintergrund wurde Rust im Jahr 2015 veröffentlicht mit dem Ziel, 
+C/C++ als systemnahe Programmiersprache zu ersetzen und die Speichersicherheitsprobleme 
+von C/C++ zu lösen, ohne dabei auf Leistung zu verzichten.
+
+Rust verfolgt das Konzept der „Zero Cost Abstractions“\autocite{TheRustProgrammingLanguage}: Es behält eine Leistung bei, 
+die mit C++ vergleichbar ist, bietet aber gleichzeitig fortschrittliche und sichere 
+Programmierabstraktionen. 
+Die Speicherverwaltung in Rust basiert auf drei Kernmechanismen: Ownership, Borrowing 
+und Lifetimes. Jeder Wert kann zu einem bestimmten Zeitpunkt nur einen Besitzer haben, 
+und sobald dieser Besitzer den Gültigkeitsbereich verlässt, wird der Wert automatisch 
+freigegeben (Nach meinem Verständnis ist das ähnlich dem RAII-Prinzip in C++.). Wenn Datenzugriff erforderlich ist, 
+geschieht dies über Leihen, wobei die Nutzung den Regeln der Lebensdauer unterliegt, damit die Daten 
+während der Verwendung stets gültig bleiben. Der Compiler überprüft die Lebensdauern bereits zur 
+Kompilierzeit und verhindert so hängende Zeiger oder ungültige Referenzen\autocite{TheRustProgrammingLanguage}. Darüber hinaus stellt Rust 
+intelligente Zeiger wie Box, Vec, Rc, Arc bereit, die gängige Speicherverwaltungsmodelle 
+kapseln und vereinfachen.
+
+Im Gegensatz zu Go verwendet Rust Speicher automatisch durch sein Ownership-System,ohne Garbage Collection\autocite{TheRustProgrammingLanguage}, was die Leistung auf dem Niveau von C/C++ 
+hält. Zudem bietet Rust ein starkes Typsystem, das viele Fehler bereits zur Kompilierzeit erkennt, 
+und unterstützt funktionale Programmierparadigmen. Im Vergleich dazu kann C++ zwar ebenfalls durch 
+Klassenkapselung „gefährlichen Code“ isolieren, erzwingt aber keine strikten Sicherheitsgrenzen Entwickler 
+können jederzeit „über die Grenzen hinausgehen“. In Rust hingegen erzwingt der Compiler 
+die Markierung von unsicherem Code und verlangt, dass externe APIs innerhalb des Typsystems sicher bleiben, 
+was die Speicher und -Nebenlaufsicherheit erheblich verbessert.
+
+So löst Rust das in C häufig auftretende Problem der „dangling Pointer：
+
+\begin{figure}[htp]
+    \centering
+    \lstinputlisting[
+        language=Rust,
+        caption=Beispiel dangling pointer in Rust
+    ]{img/dangling_pointer.rs}
+    \label{fig:dangling_pointer_in_Rust}
+\end{figure}
+
+In Folgendem Code weist \textbf{Box::new(1)}einen i32 auf dem Heap zu und gibt einen Smart 
+Pointer vom Typ Box<i32> zurück. Beim Ausführen von return num wird das Eigentum 
+von num an den Aufrufer p übertragen, wodurch die Entstehung eines Dangling Pointers 
+vermieden wird. Sobald p den Gültigkeitsbereich verlässt, wird automatisch das 
+Drop-Trait von Box aufgerufen, um den belegten Heap-Speicher freizugeben und so 
+eine sichere automatische Ressourcenverwaltung zu gewährleisten.
+
+\begin{figure}[htp]
+    \centering
+    \lstinputlisting[
+        language=Rust,
+        caption= Beispiel: Behebung dangling pointer-Fehler aus C in Rust
+    ]{img/dangling_pointer.rs}
+    \label{fig:dangling_pointer_in_Rust}
+\end{figure}
+
+\begin{figure}[htp]
+    \centering
+    \lstinputlisting[
+        language=Rust,
+        caption=Beispiel: Behebung double free-Fehler aus C in Rust
+    ]{img/tow_of_free.rs}
+    \label{fig:double_free_in_Rust}
+\end{figure}
+
+In dem obigen Code allokiert vec![0; 10] einen zusammenhängenden Speicherbereich 
+im Heap, um 10 <i32> Elemente zu speichern, während auf dem Stack lediglich ein 
+Zeiger auf diesen Heap-Speicher, die Länge und die Kapazität gespeichert werden. 
+Wenn data den Gültigkeitsbereich verlässt, ruft der Vec automatisch seinen 
+Destruktor auf, um den belegten Heap-Speicher freizugeben und dadurch eine sichere 
+Speicherverwaltung zu gewährleisten.
+
+\subsubsection{Golang}
+\label{sec:Golang}
+Aufgrund der Komplexität und langsamen Buildungszeiten der C++ Projekte bei 
+Google wurde eine einfachere, effizientere und nebenläufigkeitsfreundliche Sprache 
+benötigt. Golang wurde 2007 von Google veröffentlicht. Die Designziele sind: einfache 
+und leicht erlernbare Syntax durch Weglassen komplexer C++ Eigenschaften wie Vererbung, 
+Templates und Makros; schnelle Entwicklung durch schnelle Kompilierung, die eine Iteration 
+ähnlich wie bei Skriptsprachen ermöglicht; Nebenläufigkeit im Fokus mit eingebauten Goroutines 
+und Channels, die parallele Programmierung erleichtern; und speziell geeignet für den Einsatz 
+auf Serversseite zum Aufbau großskaliger verteilter Systeme.
+
+
+\begin{figure}[htp]
+    \centering
+    \lstinputlisting[
+        language=C,
+        caption= Beispiel: Behebung dangling pointer-Fehler aus C in Golang
+    ]{img/danling.go}
+    \label{fig:dangling_pointer_in_Golang}
+\end{figure}
+
+Der obige Go-Code löst das in C häufig auftretende Problem mit Nullzeigern. 
+Die Funktion dangling pointer gibt die Adresse der lokalen Variablen num zurück. 
+Der Go-Compiler erkennt mithilfe der Escape-Analyse automatisch, dass die 
+Adresse von num zurückgegeben wird, und verschiebt daher die Allokation 
+von num vom Stack auf den Heap. Dadurch wird sichergestellt, dass der 
+zurückgegebene Zeiger auf gültigen Speicher verweist. Im main Funktionsblock 
+wird dieser Zeiger dereferenziert und ausgegeben, was korrekt den Wert 1 liefert 
+und zeigt, dass der Zeiger sicher und gültig ist.
+\begin{figure}[htp]
+    \centering
+    \lstinputlisting[
+        language=C,
+        caption= Beispiel: Behebung double free-Fehler aus C in Golang
+    ]{img/tow_of_free.go}
+    \label{fig:double_free_in_Golang}
+\end{figure}
+
+Go verwendet ein automatisches Garbage Collection System, das effektiv 
+das in C durch manuelles Speichermanagement verursachte Problem des 
+double free vermeidet, welches zu undefiniertem Verhalten oder sogar 
+Programmabstürzen führen kann. Dadurch wird die Komplexität und das 
+Risiko der Speicherverwaltung deutlich reduziert\autocite{TheGolangMemoryModel}. Im obigen Code wird 
+der Speicher für das Slice mit make vom Go-Laufzeitsystem automatisch 
+verwaltet. Indem die Variable auf nil gesetzt wird, wird die Referenz 
+entfernt, sodass der Garbage Collector den nicht mehr genutzten Speicher 
+zur geeigneten Zeit freigeben kann. Ein manuelles Aufrufen einer 
+Freigabefunktion ist somit nicht erforderlich, wodurch das Risiko 
+eines doppelten Freigebens vollständig ausgeschlossen wird.
+
+Dieser Mechanismus nutzt die Escape Analyse des Go-Compilers und den nebenläufigen 
+Garbage Collector zur Laufzeit. So wird sichergestellt, dass Variablen im richtigen 
+Speicherbereich abgelegt und nach ihrer Lebenszeit sicher wieder freigegeben werden\autocite{TheGolangMemoryModel}. 
+Dadurch macht die automatische Speicherverwaltung in Go die Entwicklung einfacher und sorgt ausserdem dafür, 
+dass Programme stabiler und sicherer laufen – typische Speicherfehler, wie man sie aus anderen Sprachen kennt, 
+werden so vermieden.
+
