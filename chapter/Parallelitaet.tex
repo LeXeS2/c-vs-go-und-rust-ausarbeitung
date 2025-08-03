@@ -28,9 +28,9 @@ selbst dafür sorgen muss, dass die Daten in der richtigen Form vorliegen.
     \lstinputlisting[
         language=C,
         linerange={18-28},
-        caption=Beispiel für die Verwendung Kollektionen zur Speicherung von Threads in C
+        caption=Beispiel für die Verwendung Kollektionen zur Speicherung von Threads in C,
+        label=fig:datentyp_in_c
     ]{img/parallelitaet_in_c.c}
-    \label{fig:datentyp_in_c}
 \end{figure}
 
 In \cref{fig:mutex_in_c} zeigt, dass um Synchronisation zu ermöglichen, muss
@@ -43,9 +43,9 @@ Programmierer manuell angewendet werden.
     \lstinputlisting[
         language=C,
         linerange={10-14},
-        caption=Beispiel für die Verwendung von Mutex in C
+        caption=Beispiel für die Verwendung von Mutex in C,
+        label=fig:mutex_in_c
     ]{img/parallelitaet_in_c.c}
-    \label{fig:mutex_in_c}
 \end{figure}
 
 
@@ -58,15 +58,15 @@ wird, um eine Goroutine zu starten, welche Equivalent zu einem Thread ist.
 \begin{figure}[htp]
     \centering
     \lstinputlisting[
-        language=C,
+        language=go,
         linerange={16-23},
-        caption=Beispiel für die Verwendung von Goroutinen in Go
+        caption=Beispiel für die Verwendung von Goroutinen in Go,
+        label=fig:goroutinen
     ]{img/parallelitaet_in_go.go}
-    \label{fig:goroutinen}
 \end{figure}
 
 Zur Synchronisation und Kommunikation zwischen Goroutinen bietet Go
-Kanäle an. In \cref{fig:go_kanäle} kann gesehen werden, wie Daten über einen 
+Kanäle an. In \cref{fig:go_kanaele} kann gesehen werden, wie Daten über einen 
 Kanal gesendet werden können. Dadurch das Kanäle in Go einen Datentyp erhalten,
 hat der Programmierer mehr Sicherheit und eine leichere Handhabung. Des Weiteren
 kann man mit Kanälen flexibeler die Kommunikation zwischen Goroutinen gestalten.
@@ -79,11 +79,11 @@ warten. \autocite{hawthorneLanguageComparisonParallel}
 \begin{figure}[htp]
     \centering
     \lstinputlisting[
-        language=C,
+        language=go,
         linerange={25-28, 8-14},
-        caption=Beispiel für die Verwendung von Kanälen in Go
+        caption=Beispiel für die Verwendung von Kanälen in Go,
+        label=fig:go_kanaele,
     ]{img/parallelitaet_in_go.go}
-    \label{fig:go_kanäle}
 \end{figure}
 
 \subsection{Erweiterung in Rust}
@@ -108,9 +108,9 @@ nicht beschrieben werden kann.
     \lstinputlisting[
         language=Rust,
         linerange={9-26},
-        caption=Beispiel für die Verwendung von Threads in Rust
+        caption=Beispiel für die Verwendung von Threads in Rust,
+        label=fig:rust_threads,
     ]{img/parallelitaet_in_rust.rs}
-    \label{fig:rust_threads}
 \end{figure}
 
 Des Weiteren bietet Rust die Möglichkeit, Daten über Kanäle zu senden, ähnlich

@@ -174,7 +174,7 @@ können jederzeit „über die Grenzen hinausgehen“. In Rust hingegen erzwingt
 die Markierung von unsicherem Code und verlangt, dass externe APIs innerhalb des Typsystems sicher bleiben, 
 was die Speicher und -Nebenlaufsicherheit erheblich verbessert.
 
-So löst Rust das in C häufig auftretende Problem der „dangling Pointer：
+So löst Rust das in C häufig auftretende Problem der \glqq{}dangling Pointer\grqq{}:
 
 \begin{figure}[htp]
     \centering
@@ -232,8 +232,8 @@ auf Serversseite zum Aufbau großskaliger verteilter Systeme.
 \begin{figure}[htp]
     \centering
     \lstinputlisting[
-        language=C,
-        caption= Beispiel: Behebung dangling pointer-Fehler aus C in Golang
+        language=go,
+        caption= Beispiel: Behebung dangling pointer-Fehler aus C in Golang,
     ]{img/danling.go}
     \label{fig:dangling_pointer_in_Golang}
 \end{figure}
@@ -249,8 +249,9 @@ und zeigt, dass der Zeiger sicher und gültig ist.
 \begin{figure}[htp]
     \centering
     \lstinputlisting[
-        language=C,
-        caption= Beispiel: Behebung double free-Fehler aus C in Golang
+        language=go,
+        caption= Beispiel: Behebung double free-Fehler aus C in Golang,
+        inputencoding=latin1
     ]{img/tow_of_free.go}
     \label{fig:double_free_in_Golang}
 \end{figure}
@@ -271,6 +272,6 @@ Dieser Mechanismus nutzt die Escape Analyse des Go-Compilers und den nebenläufi
 Garbage Collector zur Laufzeit. So wird sichergestellt, dass Variablen im richtigen 
 Speicherbereich abgelegt und nach ihrer Lebenszeit sicher wieder freigegeben werden\autocite{TheGolangMemoryModel}. 
 Dadurch macht die automatische Speicherverwaltung in Go die Entwicklung einfacher und sorgt ausserdem dafür, 
-dass Programme stabiler und sicherer laufen – typische Speicherfehler, wie man sie aus anderen Sprachen kennt, 
+dass Programme stabiler und sicherer laufen - typische Speicherfehler, wie man sie aus anderen Sprachen kennt, 
 werden so vermieden.
 

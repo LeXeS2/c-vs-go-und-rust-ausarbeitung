@@ -119,7 +119,7 @@ Dadurch bleibt das Verhalten konsistent, selbst über verschiedene Systeme hinwe
 
 Go löst das Problem mit der Datei go.sum. Diese enthält Prüfsummen aller geladenen Abhängigkeiten und 
 schützt so vor nachträglichen Änderungen im Repository. Zusammen mit go.mod stellt sie sicher, 
-dass alle Entwickler*innen mit den gleichen Paketversionen arbeiten und Builds identisch verlaufen \autocite{ManagingDependenciesGo,UnderstandingGoModulesBeginners}.
+dass alle Entwickler*innen mit den gleichen Paketversionen arbeiten und Builds identisch verlaufen \autocite{ManagingDependenciesGo,UnderstandingGoModules}.
 
 Beide Sprachen setzen damit auf integrierte Lösungen, um stabile und reproduzierbare Buildprozesse zu ermöglichen. 
 Bei C und C++ muss diese Sicherheit hingegen extern hergestellt werden, was Zeit kostet und zusätzliche Fehlerquellen schafft.
@@ -165,7 +165,7 @@ Auch für fortgeschrittene Anwendungsfälle wie Workspaces oder native Libraries
 Go geht sogar noch weiter und verzichtet fast vollständig auf Konventionen, die über das Notwendige hinausgehen. 
 Ein neues Go-Projekt benötigt nur eine Datei go.mod, und mit \texttt{go build} oder \texttt{go run} kann der Code sofort getestet werden. 
 Die Toolchain installiert automatisch alle benötigten Abhängigkeiten. Selbst komplexere Dinge wie Modulverwaltung 
-oder Cross-Compilation sind in der Standardtoolchain enthalten und dokumentiert \autocite{UsingGoModules,UnderstandingGoModulesBeginners}.
+oder Cross-Compilation sind in der Standardtoolchain enthalten und dokumentiert \autocite{UsingGoModules,UnderstandingGoModules}.
 
 Beide Sprachen setzen also auf ein Tooling, das Entwickler*innen möglichst wenig Konfiguration abverlangt und schnell zu Ergebnissen führt. 
 Das senkt die Einstiegshürde deutlich, besonders im Vergleich zu den teils komplexen Setups von C und C++.

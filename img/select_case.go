@@ -26,7 +26,7 @@ func main() {
 		case msg2 := <-ch2:
 			fmt.Println(msg2)
 		default:
-			fmt.Println("Keine Nachrichten verfügbar")
+			fmt.Println("Keine Nachrichten verfuegbar")
 			time.Sleep(500 * time.Millisecond)
 			i-- // Damit die Schleife nicht zu früh endet
 		}
