@@ -1,2 +1,129 @@
 \section{Fehlerbehandlung}
 \label{sec:Fehlerbehandlung}
+\subsection{Was ist Fehlerbehandlung und warum braucht man sie überhaupt?}
+Fehlerbehandlung bezeichnet Mechanismen, um Fehler zu erkennen, zu melden und zu behandeln. Sie sorgt dafür, dass Programme zuverlässig funktionieren. Es gibt drei Arten von Fehlern: Bei Logikfehlern verhält sich das Programm durch fehlerhafte Programmierung der Anforderungen falsch. Es handelt sich also um semantische Fehler, die auf Ebene der Programmiersprachen nicht erkannt werden können. Kompilierfehler sind hingegen syntaktische Fehler, die vom Compiler erkannt werden und verhindern, dass das Programm überhaupt ausgeführt wird, zum Beispiel durch falsche Typzuweisungen. Hier ist es auf Ebene der Programmiersprachen wichtig, dass die Meldungen an den Programmierer gut lesbar und hilfreich sind. Zudem muss festgelegt werden, was überhaupt Kompilierfehler auslöst. In Go sorgt eine deklarierte, aber ungenutzte Variable für einen Kompilierfehler, in anderen Sprachen aber nicht. Der Fehlertyp, der auf der Ebene der Programmiersprachen am kritischsten ist, ist der Laufzeitfehler, also eine unerwartete Situation, die erst zur Laufzeit erkannt werden kann, wie das Fehlen einer Datei. Hier braucht es nicht nur lesbare Fehlermeldungen, sondern auch Fehlerbehandlungsmechanismen, die das Programm vor Ausfällen und Sicherheitslücken schützen.
+
+\subsection{Fehlerrückgabe und -erkennung}
+In C gibt es keine Konstrukte, die bei der Fehlerbehandlung unterstützen. Aus Erfahrung und Konvention haben die Anwender jedoch einheitliche Konstrukte entwickelt, mit denen Fehler erkannt und zurückgegeben werden können. Es werden Fehlerwerte zurückgegeben. Der eigentliche Rückgabewert der Methode wird in einen weiteren Speicherbereich geschrieben, der über einen Pointer mitgegeben wird.
+
+\begin{figure}[htp]
+	\centering
+	\lstinputlisting[
+	language=C,
+	caption=Beispiel für die Verwendung von Errorcodes in C
+	]{img/errorcodes.c}
+	\label{fig:errorcode_in_c}
+\end{figure}
+
+Die Verwendung von Output-Parametern macht den Code weniger lesbar, da die Funktion nicht mehr durch ihre Deklaration automatisch dokumentiert ist, sondern das Lesen weiterer Dokumentation notwendig ist, um sie korrekt anzuwenden. Weiterhin muss die Funktion oder der Aufrufer absichern, dass der Parameter überhaupt auf einen Speicherbereich zeigt und dass der Output-Parameter nicht auf einen Eingabeparameter zeigt. Die Verwendung von Funktionen höherer Ordnung wie \texttt{map()} oder \texttt{filter()} wird unmöglich gemacht.
+
+C++ führt deswegen Exceptions ein: Fehler werden über \texttt{throw}-Blöcke zurückgegeben, die die Funktion unterbrechen und über \texttt{try-catch}-Blöcke erkannt werden. Die Exception wird solange nach oben propagiert und der Stack abgewickelt, bis sie von einem passenden \texttt{catch}-Block gefangen wird. Die Fehlererkennung integriert sich mit dem objektorientierten Design der Sprache: Ein \texttt{catch}-Block kann spezifisch für eine Fehlerklasse beziehungsweise deren Untertypen implementiert werden, während andere Exceptions in einem anderen \texttt{catch}-Block behandelt werden. Die Fehler können so an der Stelle behandelt werden, an der der Entwickler es vorsieht. Eigentlicher Code und Fehlerbehandlungscode sind somit separiert und im Erfolgspfad gibt es keine zusätzlichen Kosten. Jedoch sorgen Exceptions dafür, dass jede Funktion einen undokumentierten Kontrollfluss haben kann, der schnell übersehen werden kann. Das Verlassen des normalen Kontrollflusses macht es unmöglich, Echtzeitanwendungen zu entwickeln. Weiterhin sind Exceptions teuer zu verwalten. Deswegen sind sie in sicherheitskritischen oder Embedded-Anwendungen häufig verboten.
+
+\begin{figure}[htp]
+	\centering
+	\lstinputlisting[
+	language=C++,
+	caption=Beispiel für die Verwendung von Exceptions in C++
+	]{img/exceptions.cpp}
+	\label{fig:exceptions}
+\end{figure}
+
+Da dies also auch keine zufriedenstellende Lösung darstellt, implementieren Go und Rust Fehler als Werte wie in C, vermeiden jedoch Output-Parameter. In Rust gibt es algebraische Datentypen in Form von Enums, also Typen, die aus mehreren Varianten bestehen, sodass ein Wert des Enums eine konkrete Ausprägung annimmt. Zur Fehlerrückgabe werden die abstrakten Typen \texttt{Result<T,E>} mit den Ausprägungen \texttt{Ok<T>} und \texttt{Err<E>} sowie \texttt{Option<T>} mit den Ausprägungen \texttt{Some<T>} und \texttt{None}, die beide den \texttt{Try}-Trait implementieren, genutzt. Zur Fehlerbehandlung wird Pattern Matching eingesetzt, das erschöpfend sein muss, wodurch eine explizite Fehlerbehandlung gefordert wird. Will man den Fehler nicht sofort behandeln, kann man im Fehlerfall mit dem \texttt{?}-Operator den Fehler nach oben weiterreichen. Monadische Operationen erlauben es, durch Funktionen wie \texttt{map()} (wendet Funktion auf Wert an, wenn \texttt{Some}, sonst \texttt{None}) oder \texttt{and\_then()} (wie \texttt{map}, aber Funktion gibt selbst \texttt{Option<U>} zurück), fehlerbehaftete Berechnungen zu verketten, ohne ständig Fallunterscheidungen zu machen oder eine wachsende Typverkettung (zum Beispiel \texttt{Option<Option<Option<T>>>}) zu haben. Auf \texttt{Try}-Objekten kann auch \texttt{unwrap()} aufgerufen werden. Dies führt zu einem nicht wiederherstellbaren Fehler, der für einen Programmabbruch sorgt, wenn der Typ nicht der erfolgreiche (\texttt{Some}/\texttt{Result}) ist. Allgemein können diese Fehler mit dem \texttt{panic!}-Makro erzeugt werden.
+
+\begin{figure}[htp]
+	\centering
+	\lstinputlisting[
+	language=Rust,
+	caption=Beispiel für die Verwendung des Try-Traits
+	]{img/try.rs}
+	\label{fig:try-rust}
+\end{figure}
+
+In Go werden Tupel aus Ergebnis und Fehlerwert zurückgegeben, wodurch der Entwickler auch hier gefordert ist, die Fehler explizit zu behandeln. Es fehlt jedoch eine Konstruktion wie das \texttt{?} in Rust, wodurch das häufige Weitergeben des Fehlers an vielen Stellen im Code wiederholt werden muss, was als umständlich wahrgenommen wird. Für nicht wiederherstellbare Fehler gibt es auch hier die \texttt{panic}-Funktionalität.
+
+\begin{figure}[htp]
+	\centering
+	\lstinputlisting[
+	language=Go,
+	caption=Beispiel für die Verwendung von Tupeln
+	]{img/tuple.go}
+	\label{fig:tuple}
+\end{figure}
+
+\subsection{Aufräumen}
+Neben Speicherbereichen, deren Freigabe durch Stack-Unwinding oder durch den Garbage Collector von der Programmiersprache selbst geregelt werden kann, halten Programme oft auch andere Ressourcen, wie zum Beispiel Datenbankverbindungen zur Persistierung. Ein wichtiger Teil der Fehlerbehandlung ist es, dass auch wenn das Programm nicht korrekt ablaufen kann, diese wieder freigegeben werden. In C gibt es keine Konstrukte, die den Programmierer hierbei unterstützen. In Rust und C++ wird das Prinzip „Resource Acquisition Is Initialization“ verwendet, das auch für die Freigabe von Speicherbereichen zuständig ist. Im Konstruktor eines Objekts werden alle Ressourcen akquiriert und im Destruktor wieder freigegeben. Dieser kann vom Entwickler überschrieben werden, sodass hier auch andere Ressourcen wieder freigegeben werden. Wenn Objekte den Geltungsbereich verlassen, wird der Destruktor auf jeden Fall aufgerufen. In C++ muss man jedoch darauf achten, dass der Destruktor keine Exception wirft, da sonst das Programm abgebrochen wird.
+
+\begin{figure}[htp]
+	\centering
+	\lstinputlisting[
+	language=C++,
+	caption=Beispiel für die Verwendung von Destruktoren
+	]{img/filewriter.cpp}
+	\label{fig:raii}
+\end{figure}
+
+In Go funktioniert das RAII-Prinzip aufgrund der nicht-deterministischen Speicherfreigabe nicht. Jedoch kann durch das \texttt{defer}-Konstrukt Code definiert werden, der auf jeden Fall am Ende der Funktion aufgerufen wird, auch wenn die Funktion vor ihrem normalen Ende verlassen wird. So wird Code-Duplikation sowie das Vergessen von Ressourcenfreigaben vermieden.
+
+\begin{figure}[htp]
+	\centering
+	\lstinputlisting[
+	language=Go,
+	caption=Beispiel für die Verwendung von defer
+	]{img/defer.go}
+	\label{fig:defer}
+\end{figure}
+
+\subsection{Fehlerisolation}
+Bisher wurden nur Fehler behandelt, die es zulassen, wieder in einen normalen Zustand zurückzukehren. Manchmal ist dies aber nicht gewollt und der bisherige Programmablauf wird gestoppt. Zum Beispiel in Client-Server-Anwendungen ist gewollt, dass dann zwar der einzelne Client-Aufruf abstürzt, aber nicht gleich der gesamte Server mit abstürzt. Konstrukte zum Programmabbruch in C++ (\texttt{std::terminate}) und C (\texttt{abort}) verfügen nicht über eine solche Funktionalität. In Go kann im \texttt{defer}-Block \texttt{recover()} aufgerufen werden, das \texttt{panic} abfängt und eine Rückkehr zum normalen Programmfluss ermöglicht.
+
+\begin{figure}[htp]
+	\centering
+	\lstinputlisting[
+	language=Rust,
+	caption=Beispiel für die Verwendung von catch\_unwind()
+	]{img/catch_unwind.rs}
+	\label{fig:catch_unwind}
+\end{figure}
+
+\subsection{Lesbarkeit}
+Für eine gute Wartbarkeit ist es wichtig, lesbare Fehlermeldungen sowie einen Stack Trace zu haben, damit man schnell weiß, warum das Programm einen Fehler wirft. Hier kann zwischen Kompilierfehlern und Laufzeitfehlern unterschieden werden. Kompilierfehler kann man in einem kleinen Beispielprogramm vergleichen, in dem eine konstante Variable überschrieben wird. Hier erkennt man, dass Rust besonders hilfreich ist und neben der Fehlerquelle auch direkt eine Lösung mitliefert. Bei einem verschachtelten Laufzeitfehler, der zum Programmabbruch führt, geben Rust und Go einen Stack-Trace mit, während das C/C++-Programm einfach nur abbricht (siehe Folie 18/19 der Präsentation).
+
+Auch bieten die Programmiersprachen Konzepte zum Loggen von Fehlern, die nicht zum Programmabbruch führen. In C gibt es die globale Variable \texttt{errno}, die von Funktionen gesetzt werden kann. Durch die \texttt{strerror()}-Funktion wird dieser Fehlercode in einen menschenlesbaren Text umgewandelt. Allerdings ist \texttt{errno} nicht auf allen Systemen threadsafe, wodurch es durch einen anderen Thread überschrieben werden kann, bevor es fertig verarbeitet wird. Außerdem ist die Ausgabe betriebssystemabhängig. In C++ implementieren Exceptions die Methode \texttt{what()}, die einen String zurückgibt. Kontext kann manuell mitgegeben werden.
+
+\begin{figure}[htp]
+	\centering
+	\lstinputlisting[
+	language=C,
+	caption=Beispiel für die Verwendung von strerror(errno)
+	]{img/errno.c}
+	\label{fig:errno}
+\end{figure}
+
+\begin{figure}[htp]
+	\centering
+	\lstinputlisting[
+	language=C++,
+	caption=Beispiel für die Verwendung von Fehlermeldungen in Exceptions
+	]{img/file.cpp}
+	\label{fig:error_c++}
+\end{figure}
+
+Auch in Go gibt es das \texttt{error}-Interface, aus dem der Entwickler eigene Fehlertypen bauen kann, die mit der \texttt{Error()}-Funktion eine menschenlesbare Nachricht zurückgeben. Das \texttt{Unwrap}-Interface ermöglicht Fehlerketten. In Rust bietet der \texttt{Error}-Trait zusätzlich die Funktion \texttt{source()}, um Fehler zu verketten. Rust und Go bieten also eine Lesbarkeit Out-of-the-Box, die in C/C++ manuell hergestellt werden muss.
+
+\begin{figure}[htp]
+	\centering
+	\lstinputlisting[
+	language=Go,
+	caption=Beispiel für die Verwendung von Fehlermeldungen in Go
+	]{img/file.go}
+	\label{fig:error_go}
+\end{figure}
+
+\begin{figure}[htp]
+	\centering
+	\lstinputlisting[
+	language=Rust,
+	caption=Beispiel für die Verwendung von Fehlermeldungen in Rust
+	]{img/file.rs}
+	\label{fig:error_rust}
+\end{figure}
